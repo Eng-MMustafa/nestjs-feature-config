@@ -206,9 +206,11 @@ export function formatValidationErrors(errors: ValidationErrorDetail[]): string 
  * @returns Merged configuration object
  */
 export function mergeConfigurations<T extends Record<string, any>>(...configs: Partial<T>[]): T {
-  return configs.reduce((merged, config) => {
-    return { ...merged, ...config };
-  }, {} as T);
+  const result: Record<string, any> = {};
+  for (const config of configs) {
+    Object.assign(result, config);
+  }
+  return result as T;
 }
 
 /**

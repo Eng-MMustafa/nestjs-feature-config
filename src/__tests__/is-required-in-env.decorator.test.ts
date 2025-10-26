@@ -1,5 +1,5 @@
 import { ValidationArguments } from 'class-validator';
-import { IsRequiredInEnvConstraint } from '../src/decorators/is-required-in-env.decorator';
+import { IsRequiredInEnvConstraint } from '../decorators/is-required-in-env.decorator';
 
 /**
  * Test suite for @IsRequiredInEnv decorator

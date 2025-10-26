@@ -638,4 +638,233 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built on top of [class-validator](https://github.com/typestack/class-validator) and [class-transformer](https://github.com/typestack/class-transformer)
 - Inspired by NestJS's configuration best practices
-- Thanks to the NestJS community for feedback and suggestions# nestjs-feature-config
+- Thanks to the NestJS community for feedback and suggestions# NestJS Feature Config
+
+A powerful NestJS Dynamic Module for type-safe feature configuration management with conditional validation. Build robust, scalable applications with validated configuration schemas that adapt to your deployment environment.
+
+## Features
+
+- 🔧 **Type-safe configuration management** with TypeScript support
+- 🎯 **Conditional validation** with custom decorators (`@IsRequiredIf`, `@IsRequiredInEnv`)
+- 🌍 **Environment-based feature toggling** and validation
+- 🏗️ **Dynamic module registration** with flexible configuration schemas
+- ✅ **Built-in validation** using class-validator
+- 🚀 **Production-ready** with comprehensive type definitions
+
+## 📦 Installation
+
+Using npm:
+```bash
+npm install nestjs-feature-config
+```
+
+Using yarn:
+```bash
+yarn add nestjs-feature-config
+```
+
+Install peer dependencies:
+
+Using npm:
+```bash
+npm install @nestjs/common @nestjs/core reflect-metadata rxjs class-transformer class-validator
+```
+
+Using yarn:
+```bash
+yarn add @nestjs/common @nestjs/core reflect-metadata rxjs class-transformer class-validator
+```
+
+## 🚀 Quick Start
+
+### 1. Create a Configuration Schema
+
+```typescript
+import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsRequiredInEnv, IsRequiredIf } from 'nestjs-feature-config';
+
+export class AppConfig {
+  @IsString()
+  @IsRequiredInEnv('production')
+  apiKey: string;
+
+  @IsNumber()
+  @IsOptional()
+  port: number = 3000;
+
+  @IsString()
+  @IsRequiredIf('apiKey', (value) => !!value)
+  apiSecret: string;
+}
+```
+
+### 2. Register the Module
+
+```typescript
+import { Module } from '@nestjs/common';
+import { FeatureConfigModule } from 'nestjs-feature-config';
+import { AppConfig } from './app.config';
+
+@Module({
+  imports: [
+    FeatureConfigModule.forRoot({
+      schema: AppConfig,
+      env: process.env,
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### 3. Use Configuration in Your Services
+
+```typescript
+import { Injectable, Inject } from '@nestjs/common';
+import { AppConfig } from './app.config';
+
+@Injectable()
+export class AppService {
+  constructor(@Inject('CONFIG') private config: AppConfig) {}
+
+  getApiKey(): string {
+    return this.config.apiKey;
+  }
+}
+```
+
+## 📖 API Documentation
+
+### Custom Decorators
+
+#### `@IsRequiredInEnv(environment, envVar?)`
+
+Validates that a field is required when the application runs in a specific environment.
+
+```typescript
+export class DatabaseConfig {
+  @IsString()
+  @IsRequiredInEnv('production') // Required only in production
+  password: string;
+
+  @IsString()
+  @IsRequiredInEnv('staging', 'APP_ENV') // Check APP_ENV instead of NODE_ENV
+  stagingKey: string;
+}
+```
+
+#### `@IsRequiredIf(field, condition)`
+
+Validates that a field is required based on the value of another field.
+
+```typescript
+export class EmailConfig {
+  @IsBoolean()
+  @IsOptional()
+  enabled: boolean = false;
+
+  @IsString()
+  @IsRequiredIf('enabled', (enabled) => enabled === true)
+  smtpHost: string; // Required only if email is enabled
+}
+```
+
+### Module Configuration
+
+#### `FeatureConfigModule.forRoot(options)`
+
+```typescript
+interface FeatureConfigOptions {
+  schema: Type<any>;
+  env?: Record<string, string | undefined>;
+  validateOnStartup?: boolean;
+  throwOnValidationError?: boolean;
+}
+```
+
+#### `FeatureConfigModule.forFeature(options)`
+
+For feature-specific configurations in different modules.
+
+```typescript
+@Module({
+  imports: [
+    FeatureConfigModule.forFeature({
+      schema: PaymentConfig,
+      namespace: 'payment',
+    }),
+  ],
+})
+export class PaymentModule {}
+```
+
+## 🔧 Environment Utilities
+
+```typescript
+import { 
+  isProduction, 
+  isDevelopment, 
+  isTest, 
+  isEnv,
+  isInEnvs 
+} from 'nestjs-feature-config';
+
+// Environment checks
+if (isProduction()) {
+  // Production-only logic
+}
+
+if (isEnv('staging')) {
+  // Staging-specific logic
+}
+
+if (isInEnvs(['development', 'test'])) {
+  // Development or test logic
+}
+```
+
+## 🧪 Testing
+
+```typescript
+import { Test } from '@nestjs/testing';
+import { FeatureConfigModule } from 'nestjs-feature-config';
+
+describe('AppService', () => {
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      imports: [
+        FeatureConfigModule.forRoot({
+          schema: AppConfig,
+          env: {
+            NODE_ENV: 'test',
+            API_KEY: 'test-key',
+          },
+        }),
+      ],
+      providers: [AppService],
+    }).compile();
+
+    service = module.get<AppService>(AppService);
+  });
+});
+```
+
+## 📝 Examples
+
+Check out the [examples](./examples) directory for more comprehensive usage examples:
+
+- [Simple Configuration](./examples/simple-config.ts)
+- [Advanced Feature Usage](./examples/advanced-feature-usage.ts)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- [GitHub Repository](https://github.com/Eng-MMustafa/nestjs-feature-config)
+- [npm Package](https://www.npmjs.com/package/nestjs-feature-config)
+- [Issues](https://github.com/Eng-MMustafa/nestjs-feature-config/issues)
