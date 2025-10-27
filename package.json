@@ -1,6 +1,6 @@
 {
   "name": "nestjs-feature-config",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A powerful NestJS Dynamic Module for type-safe feature configuration management with conditional validation. Build robust, scalable applications with validated configuration schemas that adapt to your deployment environment.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -102,6 +102,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["<rootDir>/../test/setup.ts"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/../test/setup.ts"
+    ]
   }
 }
